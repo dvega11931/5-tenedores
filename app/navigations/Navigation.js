@@ -8,9 +8,9 @@ const Tab = createBottomTabNavigator();
 export default function Navigation() {
   return (
     <NavigationContainer>
-      <Tab.Navigation>
+      <Tab.Navigator>
         <Tab.Screen name="restaurants" component={Restaurants} />
-      </Tab.Navigation>
+      </Tab.Navigator>
     </NavigationContainer>
   );
 }
