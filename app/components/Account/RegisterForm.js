@@ -3,6 +3,8 @@ import { StyleSheet, View } from "react-native";
 import { Input, Icon, Button } from "react-native-elements";
 import { validateEmail } from "../../utils/validations";
 import { size, isEmpty } from "lodash"; //libreria de funciones para hacer validaciones
+import * as firebase from "firebase";
+import { useNavigation } from "@react-navigation/native"; //para poder redireccionar a otra screen
 
 export default function RegisterForm(props) {
   const { toastRef } = props;
@@ -11,6 +13,8 @@ export default function RegisterForm(props) {
   const [showRepeatPassword, setShowRepeatPassword] = useState(false);
   //donde se van a guardar todos los valores del formulario
   const [formData, setFormData] = useState(defaultFormValue());
+  //se inicializa el hook
+  const navigation = useNavigation();
 
   //se ejecuta al darle clic al boton
   const onSubmit = () => {
@@ -28,7 +32,15 @@ export default function RegisterForm(props) {
     } else if (size(formData.password) < 6) {
       toastRef.current.show("Las contraseña debe ser mayor a 6 caracteres");
     } else {
-      console.log("Ok");
+      firebase
+        .auth()
+        .createUserWithEmailAndPassword(formData.email, formData.password)
+        .then(() => {
+          navigation.navigate("account");
+        })
+        .catch(() => {
+          toastRef.current.show("El email ya esta en uso, intente con otro.");
+        });
     }
   };
 
@@ -76,7 +88,7 @@ export default function RegisterForm(props) {
         rightIcon={
           <Icon
             type="material-community"
-            name="eye-outline"
+            name={showRepeatPassword ? "eye-off-outline" : "eye-outline"}
             iconStyle={styles.iconRight}
             onPress={() => setShowRepeatPassword(!showRepeatPassword)} //se envia el valor contrario que tiene showPassword para eso es el !
           />
