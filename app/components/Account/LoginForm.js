@@ -2,55 +2,44 @@ import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { Input, Icon, Button } from "react-native-elements";
 import Loading from "../Loading";
-import { validateEmail } from "../../utils/validations";
-import { size, isEmpty } from "lodash"; //libreria de funciones para hacer validaciones
+import { isEmpty } from "lodash"; //libreria de funciones para hacer validaciones
 import * as firebase from "firebase";
+import { validateEmail } from "../../utils/validations";
 import { useNavigation } from "@react-navigation/native"; //para poder redireccionar a otra screen
 
-export default function RegisterForm(props) {
+export default function LoginForm(props) {
   const { toastRef } = props;
-  //estados para mostrar y ocultar las contraseñas
   const [showPassword, setShowPassword] = useState(false);
-  const [showRepeatPassword, setShowRepeatPassword] = useState(false);
-  //donde se van a guardar todos los valores del formulario
   const [formData, setFormData] = useState(defaultFormValue());
-  //se inicializa el hook
   const navigation = useNavigation();
-
   const [loading, setLoading] = useState(false);
-
   //se ejecuta al darle clic al boton
   const onSubmit = () => {
     if (
       //validar si los campos esta vacios
       isEmpty(formData.email) ||
-      isEmpty(formData.password) ||
-      isEmpty(formData.repeatPassword)
+      isEmpty(formData.password)
     ) {
       toastRef.current.show("Todos los campos son obligatorios");
     } else if (!validateEmail(formData.email)) {
-      toastRef.current.show("El email no es valido");
-    } else if (formData.password !== formData.repeatPassword) {
-      toastRef.current.show("Las contraseñas deben ser iguales");
-    } else if (size(formData.password) < 6) {
-      toastRef.current.show("Las contraseña debe ser mayor a 6 caracteres");
+      toastRef.current.show("El email no es correcto");
     } else {
       setLoading(true);
       firebase
         .auth()
-        .createUserWithEmailAndPassword(formData.email, formData.password)
+        .signInWithEmailAndPassword(formData.email, formData.password)
         .then(() => {
           setLoading(false);
           navigation.navigate("account");
         })
         .catch(() => {
           setLoading(false);
-          toastRef.current.show("El email ya esta en uso, intente con otro.");
+          toastRef.current.show("Email o contraseña incorrecta");
         });
     }
   };
 
-  //se ejecuta cada vez que el valor de un imput cambia
+  //se ejecuta cada vez que el valor de un imput cambia, actualiza el estado
   const onChange = (e, type) => {
     //se optienen los valores del input y se guardan en un array el setFromData cambia lo q guarda fromData
     setFormData({ ...formData, [type]: e.nativeEvent.text });
@@ -59,8 +48,8 @@ export default function RegisterForm(props) {
   return (
     <View style={styles.formContainer}>
       <Input
-        placeholder="Correo electronico"
-        containerStyle={styles.inputform}
+        placeholder="Correo"
+        containerStyle={styles.inputForm}
         onChange={(e) => onChange(e, "email")}
         rightIcon={
           <Icon
@@ -71,11 +60,12 @@ export default function RegisterForm(props) {
         }
       />
       <Input
-        placeholder="Contaseña"
-        containerStyle={styles.inputform}
-        password={true}
-        secureTextEntry={showPassword ? false : true}
+        placeholder="Contraseña"
+        containerStyle={styles.inputForm}
         onChange={(e) => onChange(e, "password")}
+        password={true}
+        secureTextEntry={true}
+        secureTextEntry={showPassword ? false : true}
         rightIcon={
           <Icon
             type="material-community"
@@ -85,28 +75,13 @@ export default function RegisterForm(props) {
           />
         }
       />
-      <Input
-        placeholder="Repetir contaseña"
-        containerStyle={styles.inputform}
-        password={true}
-        secureTextEntry={showRepeatPassword ? false : true}
-        onChange={(e) => onChange(e, "repeatPassword")}
-        rightIcon={
-          <Icon
-            type="material-community"
-            name={showRepeatPassword ? "eye-off-outline" : "eye-outline"}
-            iconStyle={styles.iconRight}
-            onPress={() => setShowRepeatPassword(!showRepeatPassword)} //se envia el valor contrario que tiene showPassword para eso es el !
-          />
-        }
-      />
       <Button
-        title="Unirse"
-        containerStyle={styles.btnContainerRegister}
-        buttonStyle={styles.btnRegister}
+        title="Iniciar sesión"
+        containerStyle={styles.btnContainerLogin}
+        buttonStyle={styles.btnLogin}
         onPress={onSubmit}
       />
-      <Loading isVisible={loading} text="CREANDO CUENTA" />
+      <Loading isVisible={loading} text="INICIANDO SESIÓN" />
     </View>
   );
 }
@@ -116,7 +91,6 @@ function defaultFormValue() {
   return {
     email: "",
     password: "",
-    repeatPassword: "",
   };
 }
 
@@ -127,17 +101,20 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: 30,
   },
-  inputform: {
+  inputForm: {
     width: "100%",
     marginTop: 20,
   },
-  btnContainerRegister: {
-    marginTop: 20,
+
+  btnContainerLogin: {
     width: "95%",
+    marginTop: 20,
   },
-  btnRegister: {
+
+  btnLogin: {
     backgroundColor: "#00a680",
   },
+
   iconRight: {
     color: "#c1c1c1",
   },

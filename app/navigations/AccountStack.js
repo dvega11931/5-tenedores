@@ -11,7 +11,7 @@ export default function AccountStack() {
     //Al ser la primera es la visible por default
     <Stack.Navigator>
       <Stack.Screen
-        name="restaurants"
+        name="account"
         component={Account}
         options={{ title: "Cuenta" }} //el nombre que sale en la barra superior
       />
