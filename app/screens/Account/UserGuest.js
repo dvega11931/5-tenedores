@@ -27,7 +27,7 @@ export default function UserGuest() {
           onPress={() => navigation.navigate("login")} //aqui se indica el screen q se quiere llamar
         />
       </View>
-    </ScrollView>a
+    </ScrollView>
   );
 }
 
