@@ -9,6 +9,8 @@ export default function InfoUser(props) {
   const {
     userInfo: { uid, photoURL, displayName, email },
     toastRef,
+    setLoading,
+    setLoadingText,
   } = props;
 
   const changeAvatar = async () => {
@@ -29,7 +31,7 @@ export default function InfoUser(props) {
       } else {
         uploadImage(result.uri)
           .then(() => {
-            console.log("Imagen subida");
+            updatePhotoUrl();
           })
           .catch(() => {
             toastRef.current.show("Error al actualizar el avatar");
@@ -39,12 +41,33 @@ export default function InfoUser(props) {
   };
 
   const uploadImage = async (uri) => {
+    setLoadingText("Actualizando avatar");
+    setLoading(true);
+
     //uri es la ubicacion del la imagene en el telefono
     const response = await fetch(uri);
     const blob = await response.blob();
 
     const ref = firebase.storage().ref().child(`avatar/${uid}`);
     return ref.put(blob);
+  };
+
+  const updatePhotoUrl = () => {
+    //optiene la url de la imagen subida
+    firebase
+      .storage()
+      .ref(`avatar/${uid}`)
+      .getDownloadURL()
+      .then(async (response) => {
+        const update = {
+          photoURL: response,
+        };
+        await firebase.auth().currentUser.updateProfile(update);
+        setLoading(false);
+      })
+      .catch(() => {
+        toastRef.current.show("Error al actualizar el avatar");
+      });
   };
 
   return (

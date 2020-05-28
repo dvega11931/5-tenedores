@@ -8,8 +8,8 @@ import InfoUser from "../../components/Account/InfoUser";
 
 export default function UserLogged() {
   const [userInfo, setUserInfo] = useState(null);
-  const [loadin, setLoadin] = useState(false);
-  const [loadinText, setloadinText] = useState("");
+  const [loadin, setLoading] = useState(false);
+  const [loadinText, setLoadingText] = useState("");
   const toastRef = useRef();
 
   useEffect(() => {
@@ -22,7 +22,14 @@ export default function UserLogged() {
   return (
     <View style={styles.viewUserInfo}>
       {/* si userInfo tiene datos me renderisa  */}
-      {userInfo && <InfoUser userInfo={userInfo} toastRef={toastRef} />}
+      {userInfo && (
+        <InfoUser
+          userInfo={userInfo}
+          toastRef={toastRef}
+          setLoading={setLoading}
+          setLoadingText={setLoadingText}
+        />
+      )}
 
       <Text>Account options...</Text>
 
